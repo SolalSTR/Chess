@@ -35,13 +35,17 @@ export default class Pion extends Component {
     move = (x,y) => {
         let pos = this.state.pos;
         this.props.changePions(this,[pos.x,pos.y],[x,y]);
-        this.setState({
+        let newState = {
             pos: {
                 x: x,
                 y: y
             },
             isFirstTour: false
-        })
+        }
+        if (this.state.type == "pawn" && (y == 0 || y == this.plateau.state.size -1)) {
+            newState.type = "queen";
+        }
+        this.setState(newState);
     }
 
     showCase = (e) => {
@@ -49,27 +53,40 @@ export default class Pion extends Component {
         let finalCoords = [];
         let pos = this.state.pos;
         let pionsArray = this.plateau.state.pions;
-        if (this.state.type == "pawn") {
-            finalCoords = this.pawnMoves(pos,pionsArray);
+        switch (this.state.type) {
+            case "pawn":
+                finalCoords = this.pawnMoves(pos,pionsArray);
+                break;
+            case "rook":
+                finalCoords = this.rookMoves(pos,pionsArray);
+                break;
+            case "knight":
+                finalCoords = this.knightMoves(pos,pionsArray);
+                break;
+            case "bishop":
+                finalCoords = this.bishopMoves(pos,pionsArray);
+                break;
+            case "queen":
+                finalCoords = this.queenMoves(pos,pionsArray);
+                break;
+            case "king":
+                finalCoords = this.kingMoves(pos,pionsArray);
+                break;
+            default: console.log("rien");
         }
-        if (this.state.type == "rook") {
-            finalCoords = this.rookMoves(pos,pionsArray);
-        }
-
         this.props.change(finalCoords,this);
     }
 
     die = () => {
+        if (this.state.type == "king") {
+            alert(this.state.team + " a perdu !")
+        }
         this.setState({isDead: true})
     }
 
 
     inRange(num) {
-        if (num < this.plateau.state.size && num >= 0) {
-            return true;
-        } else {
-            return false
-        }
+        return (num < this.plateau.state.size && num >= 0) ? true : false;
     }
 
     // PION MOVES ////////////////
@@ -105,19 +122,65 @@ export default class Pion extends Component {
 
     rookMoves = (pionPos,pionsArray) => {
         let coords = [];
-
-
-
-
-
-
         return coords.concat(
             this.goInLine(8,[1,0],pionPos,pionsArray),
             this.goInLine(8,[-1,0],pionPos,pionsArray),
             this.goInLine(8,[0,1],pionPos,pionsArray),
-            this.goInLine(8,[0,-1],pionPos,pionsArray),
+            this.goInLine(8,[0,-1],pionPos,pionsArray)
         );
     }
+
+    bishopMoves = (pionPos,pionsArray) => {
+        let coords = [];
+        return coords.concat(
+            this.goInLine(8,[1,1],pionPos,pionsArray),
+            this.goInLine(8,[-1,1],pionPos,pionsArray),
+            this.goInLine(8,[-1,-1],pionPos,pionsArray),
+            this.goInLine(8,[1,-1],pionPos,pionsArray)
+        );
+    }
+
+    queenMoves = (pionPos,pionsArray) => {
+        let coords = [];
+        return coords.concat(
+            this.goInLine(8,[1,1],pionPos,pionsArray),
+            this.goInLine(8,[-1,1],pionPos,pionsArray),
+            this.goInLine(8,[-1,-1],pionPos,pionsArray),
+            this.goInLine(8,[1,-1],pionPos,pionsArray),
+            this.goInLine(8,[1,0],pionPos,pionsArray),
+            this.goInLine(8,[-1,0],pionPos,pionsArray),
+            this.goInLine(8,[0,1],pionPos,pionsArray),
+            this.goInLine(8,[0,-1],pionPos,pionsArray)
+        );
+    }
+    kingMoves = (pionPos,pionsArray) => {
+        let coords = [];
+        return coords.concat(
+            this.goInLine(2,[1,1],pionPos,pionsArray),
+            this.goInLine(2,[-1,1],pionPos,pionsArray),
+            this.goInLine(2,[-1,-1],pionPos,pionsArray),
+            this.goInLine(2,[1,-1],pionPos,pionsArray),
+            this.goInLine(2,[1,0],pionPos,pionsArray),
+            this.goInLine(2,[-1,0],pionPos,pionsArray),
+            this.goInLine(2,[0,1],pionPos,pionsArray),
+            this.goInLine(2,[0,-1],pionPos,pionsArray)
+        );
+    }
+    knightMoves = (pionPos,pionsArray) => {
+        let coords = [];
+        return coords.concat(
+            this.goInLine(2,[2,1],pionPos,pionsArray),
+            this.goInLine(2,[-2,-1],pionPos,pionsArray),
+            this.goInLine(2,[-2,1],pionPos,pionsArray),
+            this.goInLine(2,[2,-1],pionPos,pionsArray),
+            this.goInLine(2,[1,2],pionPos,pionsArray),
+            this.goInLine(2,[-1,-2],pionPos,pionsArray),
+            this.goInLine(2,[-1,2],pionPos,pionsArray),
+            this.goInLine(2,[1,-2],pionPos,pionsArray)
+        );
+    }
+
+
 
     // pions repetitive Move ////
 
@@ -125,22 +188,15 @@ export default class Pion extends Component {
         let lineCoords = [];
         for (let i = 1; i < size; i++) {
             let linePos = [pionPos.x+(direction[0]*i),pionPos.y+(direction[1]*i)];
-            console.log(lineCoords);
             if (!this.inRange(linePos[0]) || !this.inRange(linePos[1])) return lineCoords;
-            console.log(pionsArray[linePos[0]][linePos[1]]);
             if (pionsArray[linePos[0]][linePos[1]] != "empty") {
-                console.log(pionsArray[linePos[0]][linePos[1]]);
-
                 if (pionsArray[linePos[0]][linePos[1]].state.team != this.state.team) {
-                    console.log("enemy");
                     lineCoords.push(linePos);
                 }
                 return lineCoords;
             }
-
             lineCoords.push(linePos);
         }
         return lineCoords;
     }
-
 }

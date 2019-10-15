@@ -8,6 +8,7 @@ export default class Plateau extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            pionsPattern: this.props.pionsPattern,
             colors: {
                 first: this.props.firstColor,
                 secondary: this.props.secondaryColor
@@ -91,16 +92,17 @@ export default class Plateau extends Component {
     }
 
     renderPions(i,j) {
-        if (i >= this.state.size - this.props.pionsPattern.length || i < this.props.pionsPattern.length) {
+        if (i >= this.state.size - this.state.pionsPattern.length || i < this.state.pionsPattern.length) {
             let color = (this.state.size / 2 > i) ? this.state.colors.first : this.state.colors.secondary;
             let type = "pion";
             let team = "";
-            if (i < this.props.pionsPattern.length) {
-                type = this.props.pionsPattern[i][j];
+            if (i < this.state.pionsPattern.length) {
+                type = this.state.pionsPattern[i][j];
                 team = "white"
             }
-            if (i >= this.state.size - this.props.pionsPattern.length) {
-                type = this.props.pionsPattern[this.state.size-i-1][this.state.size-j-1];
+
+            if (i >= this.state.size - this.state.pionsPattern.length) {
+                type = this.state.pionsPattern[this.state.size-i-1][j];
                 team = "black"
             }
 
