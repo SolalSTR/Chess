@@ -5,7 +5,7 @@ export default class Pion extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            color: this.props.color,
+            colors: this.props.colors,
             isDead: false,
             team: this.props.team,
             type: this.props.type,
@@ -24,8 +24,20 @@ export default class Pion extends Component {
 
     render() {
         let isDead = (this.state.isDead) ? "dead " : "";
+        let colors = this.props.colors;
+        let style = {
+            color: colors.borderColor,
+            borderColor: colors.borderColor,
+            background: colors.color,
+
+            top: this.state.pos.y*this.pionSize+"%",
+            left: this.state.pos.x*this.pionSize+"%",
+
+            width: this.pionSize + "%",
+            height: this.pionSize + "%"
+        }
         return (
-            <div className={"pion " + isDead} onClick={this.showCase} style={{top: this.state.pos.y*this.pionSize+"%", left: this.state.pos.x*this.pionSize+"%", background: this.state.color, width: this.pionSize + "%", height: this.pionSize + "%"}}>
+            <div className={"pion " + isDead} onClick={this.showCase} style={style}>
                 <i className={"fas fa-chess-"+this.state.type}></i>
             </div>
         );
@@ -49,32 +61,34 @@ export default class Pion extends Component {
     }
 
     showCase = (e) => {
-        e.stopPropagation();
-        let finalCoords = [];
-        let pos = this.state.pos;
-        let pionsArray = this.plateau.state.pions;
-        switch (this.state.type) {
-            case "pawn":
-                finalCoords = this.pawnMoves(pos,pionsArray);
-                break;
-            case "rook":
-                finalCoords = this.rookMoves(pos,pionsArray);
-                break;
-            case "knight":
-                finalCoords = this.knightMoves(pos,pionsArray);
-                break;
-            case "bishop":
-                finalCoords = this.bishopMoves(pos,pionsArray);
-                break;
-            case "queen":
-                finalCoords = this.queenMoves(pos,pionsArray);
-                break;
-            case "king":
-                finalCoords = this.kingMoves(pos,pionsArray);
-                break;
-            default: console.log("rien");
+        if (!this.state.isDead) {
+            e.stopPropagation();
+            let finalCoords = [];
+            let pos = this.state.pos;
+            let pionsArray = this.plateau.state.pions;
+            switch (this.state.type) {
+                case "pawn":
+                    finalCoords = this.pawnMoves(pos,pionsArray);
+                    break;
+                case "rook":
+                    finalCoords = this.rookMoves(pos,pionsArray);
+                    break;
+                case "knight":
+                    finalCoords = this.knightMoves(pos,pionsArray);
+                    break;
+                case "bishop":
+                    finalCoords = this.bishopMoves(pos,pionsArray);
+                    break;
+                case "queen":
+                    finalCoords = this.queenMoves(pos,pionsArray);
+                    break;
+                case "king":
+                    finalCoords = this.kingMoves(pos,pionsArray);
+                    break;
+                default: console.log("rien");
+            }
+            this.props.change(finalCoords,this);
         }
-        this.props.change(finalCoords,this);
     }
 
     die = () => {

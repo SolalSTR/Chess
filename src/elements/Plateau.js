@@ -9,10 +9,7 @@ export default class Plateau extends Component {
         super(props);
         this.state = {
             pionsPattern: this.props.pionsPattern,
-            colors: {
-                first: this.props.firstColor,
-                secondary: this.props.secondaryColor
-            },
+            colors: this.props.colors,
             size: this.props.size,
             cases: this.createArrayCases(),
             choosing: {
@@ -81,7 +78,7 @@ export default class Plateau extends Component {
             for (var j = 0; j < this.props.size; j++) {
                 plateauArrayRow.push(
                     [
-                        <Case key={i+j} x={j} y={i} glowing={this.state.cases[j][i]} plateau={this} color={((j+i)%2 == 0) ? this.state.colors.first : this.state.colors.secondary}/>,
+                        <Case key={i+j} x={j} y={i} glowing={this.state.cases[j][i]} plateau={this} color={((j+i)%2 == 0) ? this.state.colors.firstColor.first : this.state.colors.secondaryColor.first}/>,
                         this.renderPions(i,j)
                     ]
                 )
@@ -93,7 +90,8 @@ export default class Plateau extends Component {
 
     renderPions(i,j) {
         if (i >= this.state.size - this.state.pionsPattern.length || i < this.state.pionsPattern.length) {
-            let color = (this.state.size / 2 > i) ? this.state.colors.first : this.state.colors.secondary;
+            let color = (this.state.size / 2 > i) ? this.state.colors.firstColor.secondary : this.state.colors.secondaryColor.secondary;
+            let borderColor = (this.state.size / 2 > i) ? this.state.colors.secondaryColor.secondary : this.state.colors.firstColor.secondary;
             let type = "pion";
             let team = "";
             if (i < this.state.pionsPattern.length) {
@@ -106,15 +104,19 @@ export default class Plateau extends Component {
                 team = "black"
             }
 
-            return <Pion changePions={this.changePions.bind(this)} getThis={this.getThis.bind(this)} change={this.changeArray.bind(this)} key={i+j+"p"} x={j} y={i} plateau={this} color={color} type={type} team={team} />
+            return <Pion changePions={this.changePions.bind(this)} getThis={this.getThis.bind(this)} change={this.changeArray.bind(this)} key={i+j+"p"} x={j} y={i} plateau={this} colors={{color: color, borderColor: borderColor}} type={type} team={team} />
 
         }
         return null;
     }
 
     render() {
+        let style = {
+            gridTemplate: "repeat("+this.props.size+",1fr) / repeat("+this.props.size+",1fr)",
+            border: "15px outset " + this.state.colors.firstColor.secondary
+        };
         return (
-          <div onClick={this.test} id="plateau" style={{gridTemplate: "repeat("+this.props.size+",1fr) / repeat("+this.props.size+",1fr)"}}>
+          <div onClick={this.test} id="plateau" style={style}>
             {
                 this.renderPlateau()
             }

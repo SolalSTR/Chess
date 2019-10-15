@@ -3,7 +3,17 @@ import Plateau from './elements/Plateau';
 import './App.css';
 
 export default function App() {
-  return (
-    <Plateau size={8} firstColor="#f0eff6" secondaryColor="#d8d6e0" pionsPattern={[["rook","knight","bishop","king","queen","bishop","knight","rook"],["pawn","pawn","pawn","pawn","pawn","pawn","pawn","pawn"]]}/>
-  );
+    let colors = {
+        firstColor: {
+            first: "#e4e3ee",
+            secondary: "#f7f6ff"
+        },
+        secondaryColor: {
+            first: "#bdbbc7",
+            secondary: "#a7a5b0"
+        }
+    };
+    return (
+    <Plateau size={8} colors={colors} pionsPattern={[["rook","knight","bishop","king","queen","bishop","knight","rook"],["pawn","pawn","pawn","pawn","pawn","pawn","pawn","pawn"]]}/>
+    );
 }
