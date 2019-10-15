@@ -35,8 +35,6 @@ export default class Plateau extends Component {
     changePions(pion,start,end) {
         let newCasesArray = this.state.pions;
         let movingPion = newCasesArray[start[0]].splice(start[1],1,"empty");
-        console.log(newCasesArray);
-        console.log(movingPion);
         if (newCasesArray[end[0]][end[1]] != "empty") {
             newCasesArray[end[0]][end[1]].die();
         }
@@ -105,15 +103,14 @@ export default class Plateau extends Component {
                 type = this.props.pionsPattern[this.state.size-i-1][this.state.size-j-1];
                 team = "black"
             }
-            if (type == "pion") {
-                return <Pion changePions={this.changePions.bind(this)} getThis={this.getThis.bind(this)} change={this.changeArray.bind(this)} key={i+j+"p"} x={j} y={i} plateau={this} color={color} team={team} />
-            }
+
+            return <Pion changePions={this.changePions.bind(this)} getThis={this.getThis.bind(this)} change={this.changeArray.bind(this)} key={i+j+"p"} x={j} y={i} plateau={this} color={color} type={type} team={team} />
+
         }
         return null;
     }
 
     render() {
-        console.log(this.state.pions);
         return (
           <div onClick={this.test} id="plateau" style={{gridTemplate: "repeat("+this.props.size+",1fr) / repeat("+this.props.size+",1fr)"}}>
             {
