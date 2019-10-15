@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import '../build/plateau.min.css';
 import Case from './Case';
-import Pion from './Pion';
+import Pion from './pions/Pion';
+
 
 export default class Plateau extends Component {
     constructor(props) {
@@ -11,56 +12,121 @@ export default class Plateau extends Component {
                 first: this.props.firstColor,
                 secondary: this.props.secondaryColor
             },
-            cases: this.renderPlateauCases(),
-            pions: {
-                first: this.renderPions(),
-                secondary: this.renderPions()
+            size: this.props.size,
+            cases: this.createArrayCases(),
+            choosing: {
+                isChoosing: false,
+                pion: null
             },
-            size: this.props.size
-
+            pions: this.createArrayPions()
         };
     }
 
-    renderPlateauCases() {
-        let cases = [];
-        for (var i = 0; i < this.props.size; i++) {
-            for (var j = 0; j < this.props.size; j++) {
-                cases.push([i,j]);
+    changeArray(coords,pion) {
+        let newCasesArray = this.createArrayCases();
+        for (let coord of coords) {
+            if ((coord[0] >= 0 && coord[0] < this.state.size) && coord[1] >= 0 && coord[1] < this.state.size) {
+                newCasesArray[coord[0]][coord[1]] = true;
             }
         }
-        return cases;
+        this.setState({cases: newCasesArray, choosing: {isChoosing: true, pion: pion}});
     }
 
-    renderPions() {
-        let pions = [];
-        for (var i = 0; i < 2; i++) {
+    changePions(pion,start,end) {
+        let newCasesArray = this.state.pions;
+        let movingPion = newCasesArray[start[0]].splice(start[1],1,"empty");
+        console.log(newCasesArray);
+        console.log(movingPion);
+        if (newCasesArray[end[0]][end[1]] != "empty") {
+            newCasesArray[end[0]][end[1]].die();
+        }
+        newCasesArray[end[0]][end[1]] = movingPion[0];
+        this.setState({pions: newCasesArray});
+    }
+
+
+    createArrayCases() {
+        let plateauArray = [];
+        for (var i = 0; i < this.props.size; i++) {
+            let plateauArrayRow = [];
             for (var j = 0; j < this.props.size; j++) {
-                pions.push([i,j]);
+                plateauArrayRow.push(false);
+            }
+            plateauArray.push(plateauArrayRow);
+        }
+        return plateauArray;
+    }
+    createArrayPions() {
+        let plateauArray = [];
+        for (var i = 0; i < this.props.size; i++) {
+            let plateauArrayRow = [];
+            for (var j = 0; j < this.props.size; j++) {
+                plateauArrayRow.push("empty");
+            }
+            plateauArray.push(plateauArrayRow);
+        }
+        return plateauArray;
+    }
+
+    getThis(pion) {
+        let newPions = this.state.pions;
+        let pionPos = pion.state.pos;
+        newPions[pionPos.x][pionPos.y] = pion;
+        this.setState({pions: newPions});
+    }
+
+    renderPlateau() {
+        let plateauArray = [];
+        for (var i = 0; i < this.props.size; i++) {
+            let plateauArrayRow = [];
+            for (var j = 0; j < this.props.size; j++) {
+                plateauArrayRow.push(
+                    [
+                        <Case key={i+j} x={j} y={i} glowing={this.state.cases[j][i]} plateau={this} color={((j+i)%2 == 0) ? this.state.colors.first : this.state.colors.secondary}/>,
+                        this.renderPions(i,j)
+                    ]
+                )
+            }
+            plateauArray.push(plateauArrayRow);
+        }
+        return plateauArray;
+    }
+
+    renderPions(i,j) {
+        if (i >= this.state.size - this.props.pionsPattern.length || i < this.props.pionsPattern.length) {
+            let color = (this.state.size / 2 > i) ? this.state.colors.first : this.state.colors.secondary;
+            let type = "pion";
+            let team = "";
+            if (i < this.props.pionsPattern.length) {
+                type = this.props.pionsPattern[i][j];
+                team = "white"
+            }
+            if (i >= this.state.size - this.props.pionsPattern.length) {
+                type = this.props.pionsPattern[this.state.size-i-1][this.state.size-j-1];
+                team = "black"
+            }
+            if (type == "pion") {
+                return <Pion changePions={this.changePions.bind(this)} getThis={this.getThis.bind(this)} change={this.changeArray.bind(this)} key={i+j+"p"} x={j} y={i} plateau={this} color={color} team={team} />
             }
         }
-        return pions;
+        return null;
     }
 
     render() {
+        console.log(this.state.pions);
         return (
-          <div id="plateau" style={{gridTemplate: "repeat("+this.props.size+",1fr) / repeat("+this.props.size+",1fr)"}}>
+          <div onClick={this.test} id="plateau" style={{gridTemplate: "repeat("+this.props.size+",1fr) / repeat("+this.props.size+",1fr)"}}>
             {
-                this.state.cases.map((element,i) => {
-                    return <Case key={i} x={element[1]} y={element[0]} plateau={this.state} color={((element[1]+element[0])%2 == 0) ? this.state.colors.first : this.state.colors.secondary}/>
-                })
-            }
-            {
-                this.state.pions.first.map((element,i) => {
-                    return <Pion key={i} x={element[1]} y={element[0]} plateau={this.state} color={this.state.colors.first}/>
-                })
-            }
-            {
-                this.state.pions.first.map((element,i) => {
-                    return <Pion key={i} x={element[1]} y={this.props.size - element[0]} plateau={this.state} color={this.state.colors.secondary}/>
-                })
+                this.renderPlateau()
             }
           </div>
         );
     }
 
+    test = () => {
+        if (this.state.choosing.isChoosing) {
+            let emptyArray = this.createArrayCases();
+            this.setState({cases: emptyArray, choosing: {isChoosing: false, pion: null}});
+        }
+    }
 }

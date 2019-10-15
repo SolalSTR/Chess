@@ -3,4 +3,14 @@
     border-radius: 50%;
     border: 3px solid #fff;
     transition: 1s;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 3em;
+    color: #fff;
+
+    &.dead {
+        display: none;
+    }
 }
