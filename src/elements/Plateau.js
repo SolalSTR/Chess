@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import '../build/plateau.min.css';
 import Case from './Case';
-import Pion from './pions/Pion';
+import Pion from './Pion';
 
 
 export default class Plateau extends Component {
@@ -12,12 +12,21 @@ export default class Plateau extends Component {
             colors: this.props.colors,
             size: this.props.size,
             cases: this.createArrayCases(),
+            teamTurn: "white",
             choosing: {
                 isChoosing: false,
                 pion: null
             },
             pions: this.createArrayPions()
         };
+    }
+
+    changeTurn() {
+        if (this.state.teamTurn == "white") {
+            this.setState({teamTurn: "black"});
+        } else {
+            this.setState({teamTurn: "white"});
+        }
     }
 
     changeArray(coords,pion) {
@@ -78,7 +87,7 @@ export default class Plateau extends Component {
             for (var j = 0; j < this.props.size; j++) {
                 plateauArrayRow.push(
                     [
-                        <Case key={i+j} x={j} y={i} glowing={this.state.cases[j][i]} plateau={this} color={((j+i)%2 == 0) ? this.state.colors.firstColor.first : this.state.colors.secondaryColor.first}/>,
+                        <Case changeTurn={this.changeTurn.bind(this)} key={i+j} x={j} y={i} glowing={this.state.cases[j][i]} plateau={this} color={((j+i)%2 == 0) ? this.state.colors.firstColor.first : this.state.colors.secondaryColor.first}/>,
                         this.renderPions(i,j)
                     ]
                 )
@@ -90,21 +99,21 @@ export default class Plateau extends Component {
 
     renderPions(i,j) {
         if (i >= this.state.size - this.state.pionsPattern.length || i < this.state.pionsPattern.length) {
-            let color = (this.state.size / 2 > i) ? this.state.colors.firstColor.secondary : this.state.colors.secondaryColor.secondary;
-            let borderColor = (this.state.size / 2 > i) ? this.state.colors.secondaryColor.secondary : this.state.colors.firstColor.secondary;
+            let color = (this.state.size / 2 <= i) ? this.state.colors.firstColor.first : this.state.colors.secondaryColor.first;
+            let borderColor = (this.state.size / 2 <= i) ? this.state.colors.firstColor.secondary : this.state.colors.secondaryColor.secondary;
             let type = "pion";
             let team = "";
             if (i < this.state.pionsPattern.length) {
                 type = this.state.pionsPattern[i][j];
-                team = "white"
+                team = "black"
             }
 
             if (i >= this.state.size - this.state.pionsPattern.length) {
                 type = this.state.pionsPattern[this.state.size-i-1][j];
-                team = "black"
+                team = "white"
             }
 
-            return <Pion changePions={this.changePions.bind(this)} getThis={this.getThis.bind(this)} change={this.changeArray.bind(this)} key={i+j+"p"} x={j} y={i} plateau={this} colors={{color: color, borderColor: borderColor}} type={type} team={team} />
+            return <Pion askPopUp={this.props.askPopUp} typeToChange={this.props.typeToChange} rotation={this.props.rotation} changePions={this.changePions.bind(this)} getThis={this.getThis.bind(this)} change={this.changeArray.bind(this)} key={i+j+"p"} x={j} y={i} plateau={this} colors={{color: color, borderColor: borderColor}} type={type} team={team} />
 
         }
         return null;
@@ -113,10 +122,11 @@ export default class Plateau extends Component {
     render() {
         let style = {
             gridTemplate: "repeat("+this.props.size+",1fr) / repeat("+this.props.size+",1fr)",
-            border: "15px outset " + this.state.colors.firstColor.secondary
+            border: "15px outset " + this.state.colors.firstColor.secondary,
+            transform: "rotate(" + this.props.rotation + "deg)"
         };
         return (
-          <div onClick={this.test} id="plateau" style={style}>
+          <div onClick={this.chooseCase} id="plateau" style={style}>
             {
                 this.renderPlateau()
             }
@@ -124,7 +134,7 @@ export default class Plateau extends Component {
         );
     }
 
-    test = () => {
+    chooseCase = (e) => {
         if (this.state.choosing.isChoosing) {
             let emptyArray = this.createArrayCases();
             this.setState({cases: emptyArray, choosing: {isChoosing: false, pion: null}});

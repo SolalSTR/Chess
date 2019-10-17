@@ -31,6 +31,7 @@ export default class Case extends Component {
     moveInside = () => {
         if (this.plateau.state.choosing.isChoosing && this.props.glowing) {
             let pos = this.state.pos;
+            this.props.changeTurn();
             this.plateau.state.choosing.pion.move(pos.x,pos.y);
         }
     }
