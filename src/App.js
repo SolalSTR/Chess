@@ -28,7 +28,9 @@ export default class App extends React.Component {
             rotation: 0,
             clicked: false,
             askNewType: false,
-            func: null
+            func: null,
+            type: "",
+            winnerTeam: "",
         }
     }
 
@@ -39,12 +41,12 @@ export default class App extends React.Component {
 
     createPopUp() {
         if (this.state.askNewType) {
-            return <PopUp changeType={this.changeType.bind(this)} text="Choose your new pawn type ?"/>
+            return <PopUp type={this.state.type} winnerTeam={this.state.winnerTeam} changeType={this.changeType.bind(this)}/>
         }
     }
 
-    askPopUp(func) {
-        this.setState({func: func, askNewType: true});
+    askPopUp(type,team,func) {
+        this.setState({type: type, winnerTeam: team, func: func, askNewType: true});
     }
 
     render() {
