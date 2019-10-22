@@ -2,10 +2,6 @@ import React from 'react';
 import '../build/popup.min.css';
 
 export default class PopUp extends React.Component {
-    constructor(props) {
-        super(props);
-
-    }
 
     renderPopup() {
         switch (this.props.type) {
@@ -29,17 +25,26 @@ export default class PopUp extends React.Component {
                         </div>
                     </div>
                 );
-                break;
             case "win":
                 return (
                     <div>
-                        <h2>The {this.props.winnerTeam} wins !</h2>
-                        
+                        <h2>The {this.props.winnerTeam} team win !</h2>
                     </div>
                 );
-                break;
+            case "pat":
+                return (
+                    <div>
+                        <h2>{this.props.winnerTeam} team is on Pat !</h2>
+                    </div>
+                );
+            case "mat":
+                return (
+                    <div>
+                        <h2>{this.props.winnerTeam} team is on Mat !</h2>
+                    </div>
+                );
             default:
-
+                break;
         }
     }
 
