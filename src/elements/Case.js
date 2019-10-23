@@ -22,9 +22,15 @@ export default class Case extends Component {
 
     render() {
         let active = (this.props.glowing) ? "active" : "";
-        active += (this.plateau.state.pions[this.state.pos.x][this.state.pos.y] !== "empty") ? "-kill" : "";
+        if (this.plateau.state.pions[this.state.pos.x][this.state.pos.y] !== "empty") { active += "-kill" }
+        let echec = this.plateau.state.echec;
+        console.log(echec.inEchec);
+        if (echec.inEchec) {
+
+            if (this.state.pos === echec.pos) { active += " danger" }
+        }
         return (
-            <div className={"case " + active } onClick={this.moveInside} x={this.state.pos.x} y={this.state.pos.y} style={this.state.style}></div>
+            <div className={"case " + active} onClick={this.moveInside} x={this.state.pos.x} y={this.state.pos.y} style={this.state.style}></div>
         );
     }
 
