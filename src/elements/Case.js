@@ -22,12 +22,20 @@ export default class Case extends Component {
 
     render() {
         let active = (this.props.glowing) ? "active" : "";
-        if (this.plateau.state.pions[this.state.pos.x][this.state.pos.y] !== "empty") { active += "-kill" }
+        let pion = this.plateau.state.pions[this.state.pos.x][this.state.pos.y];
+        if (pion !== "empty") { active += "-kill" }
         let echec = this.plateau.state.echec;
         console.log(echec.inEchec);
-        if (echec.inEchec) {
 
-            if (this.state.pos === echec.pos) { active += " danger" }
+        if (pion !== "empty") {
+            if (pion.state.type === "king") {
+                console.log(pion.checkLine(pion,this.plateau.state.pions));
+                if (!pion.checkLine(pion.state.pos,this.plateau.state.pions)) {
+                    active += " danger";
+                }
+
+            }
+
         }
         return (
             <div className={"case " + active} onClick={this.moveInside} x={this.state.pos.x} y={this.state.pos.y} style={this.state.style}></div>

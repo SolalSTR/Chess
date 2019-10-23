@@ -17,10 +17,7 @@ export default class Plateau extends Component {
                 isChoosing: false,
                 pion: null
             },
-            echec: {
-                inEchec: false,
-                pos: null
-            },
+            echec: false,
             pions: this.createArrayPions(),
             kingPos: {
                 white: null,
@@ -55,6 +52,11 @@ export default class Plateau extends Component {
         }
         newCasesArray[end[0]][end[1]] = movingPion[0];
         this.setState({pions: newCasesArray});
+    }
+
+    inEchec(pos) {
+        console.log(pos);
+        this.setState({echec: {inEchec: true, pos: pos}});
     }
 
     changeKingPos(team,pos) {
@@ -138,8 +140,9 @@ export default class Plateau extends Component {
                     colors={{color: color, borderColor: borderColor}}
                     type={type}
                     team={team}
+                    inEchec={this.inEchec.bind(this)}
+                    echec={this.state.echec}
                     changeKingPos={this.changeKingPos.bind(this)}
-                    testEchec={this.testEchec.bind(this)}
                     testPat={this.testPat.bind(this)}
                     testMat={this.testMat.bind(this)}
                     kingPos={this.state.kingPos}
@@ -151,14 +154,9 @@ export default class Plateau extends Component {
         return null;
     }
 
-    testEchec(team,kingPos) {
-        if (this.teamOnEchec(team,kingPos)) {
-            console.log(kingPos + " r ");
-            this.setState({echec: {inEchec: true, pos: kingPos}});
-        }
-    }
 
-    testPat(kingPos) {
+
+    testPat() {
         if (this.teamOnPat("white")) {
             this.props.askPopUp("pat","white",() => {console.log("e")})
         }
@@ -167,11 +165,11 @@ export default class Plateau extends Component {
         }
     }
 
-    testMat(kingPos) {
-        if (this.teamOnMat("white",kingPos)) {
+    testMat() {
+        if (this.teamOnMat("white")) {
             this.props.askPopUp("mat","white",() => {console.log("e")})
         }
-        if (this.teamOnMat("black",kingPos)) {
+        if (this.teamOnMat("black")) {
             this.props.askPopUp("mat","black",() => {console.log("e")})
         }
     }
@@ -194,17 +192,12 @@ export default class Plateau extends Component {
         );
     }
 
-    teamOnEchec = (team,kingPos) => {
-        let king = this.state.pions[kingPos.x][kingPos.y];
-        console.log(king);
-        return !king.checkLine(kingPos,this.state.pions);
-    }
-
     teamOnPat = (team) => {
         for (let pionRow of this.state.pions) {
             for (let pion of pionRow) {
                 if (pion !== "empty") {
                     if (pion.state.team === team) {
+                        console.log(pion.getAllPossibleCases().length);
                         if (pion.getAllPossibleCases().length > 0) {
                             return false;
                         }
@@ -215,7 +208,8 @@ export default class Plateau extends Component {
         return true;
     }
 
-    teamOnMat = (team,kingPos) => {
+    teamOnMat = (team) => {
+        let kingPos = this.state.kingPos[team];
         let king = this.state.pions[kingPos.x][kingPos.y];
 
         if (king.checkLine(kingPos,this.state.pions)) return false;
@@ -225,6 +219,7 @@ export default class Plateau extends Component {
             for (let pion of pionRow) {
                 if (pion !== "empty") {
                     if (pion.state.team === team) {
+                        console.log(pion.getAllPossibleCases().length);
                         if (pion.getAllPossibleCases().length > 0) {
                             return false;
                         }

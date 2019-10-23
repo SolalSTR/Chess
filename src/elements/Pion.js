@@ -47,6 +47,7 @@ export default class Pion extends Component {
             height: this.pionSize + "%",
             transform: "rotate(" + -this.props.rotation + "deg)"
         }
+        
 
         return (
             <div className={"pion " + isDead} onClick={this.showCase} style={style}>
@@ -69,16 +70,11 @@ export default class Pion extends Component {
         if (this.state.type === "pawn" && (y === 0 || y === this.plateau.state.size -1)) {
             this.props.askPopUp("endPlateau","",this.changeType.bind(this));
         }
-        let kingPos = this.props.kingPos[this.state.team];
         if (this.state.type === "king") {
-            kingPos = newState.pos
             this.props.changeKingPos(this.state.team,newState.pos);
         }
-
-        this.props.testEchec(this.state.team,kingPos);
-        this.props.testPat(kingPos);
-        this.props.testMat(kingPos);
-
+        this.props.testPat();
+        this.props.testMat();
         this.setState(newState);
     }
 
