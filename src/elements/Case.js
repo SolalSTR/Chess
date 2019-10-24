@@ -24,12 +24,8 @@ export default class Case extends Component {
         let active = (this.props.glowing) ? "active" : "";
         let pion = this.plateau.state.pions[this.state.pos.x][this.state.pos.y];
         if (pion !== "empty") { active += "-kill" }
-        let echec = this.plateau.state.echec;
-        console.log(echec.inEchec);
-
         if (pion !== "empty") {
             if (pion.state.type === "king") {
-                console.log(pion.checkLine(pion,this.plateau.state.pions));
                 if (!pion.checkLine(pion.state.pos,this.plateau.state.pions)) {
                     active += " danger";
                 }
@@ -46,7 +42,7 @@ export default class Case extends Component {
         if (this.plateau.state.choosing.isChoosing && this.props.glowing) {
             let pos = this.state.pos;
             this.props.changeTurn();
-            this.plateau.state.choosing.pion.move(pos.x,pos.y);
+            this.plateau.state.choosing.pion.move(pos.x,pos.y,this.plateau.state.pions);
         }
     }
 

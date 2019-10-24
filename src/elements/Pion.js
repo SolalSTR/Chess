@@ -47,7 +47,7 @@ export default class Pion extends Component {
             height: this.pionSize + "%",
             transform: "rotate(" + -this.props.rotation + "deg)"
         }
-        
+
 
         return (
             <div className={"pion " + isDead} onClick={this.showCase} style={style}>
@@ -57,9 +57,11 @@ export default class Pion extends Component {
 
     }
 
-    move = (x,y) => {
+    move = (x,y,pionsArray) => {
+        console.log(this);
         let pos = this.state.pos;
-        this.props.changePions(this,[pos.x,pos.y],[x,y]);
+        let tetst = this.props.changePions(this,[pos.x,pos.y],[x,y]);
+        console.log(tetst);
         let newState = {
             pos: {
                 x: x,
@@ -71,10 +73,16 @@ export default class Pion extends Component {
             this.props.askPopUp("endPlateau","",this.changeType.bind(this));
         }
         if (this.state.type === "king") {
+            if (pos.x - x === 2) {
+                console.log(tetst[0][pos.y]);
+                tetst[0][pos.y].move(pos.x-1,pos.y,tetst);
+            } else if (pos.x - x === -2) {
+                console.log(tetst[7][pos.y]);
+                tetst[7][pos.y].move(pos.x+1,pos.y,tetst);
+            }
             this.props.changeKingPos(this.state.team,newState.pos);
         }
-        this.props.testPat();
-        this.props.testMat();
+
         this.setState(newState);
     }
 
@@ -98,15 +106,14 @@ export default class Pion extends Component {
     showCase = (e) => {
         if (!this.state.isDead && this.plateau.state.teamTurn === this.state.team) {
             e.stopPropagation();
-            let allPossibleCases = this.getAllPossibleCases();
+            let allPossibleCases = this.getAllPossibleCases(this.plateau.state.pions);
             this.props.change(allPossibleCases,this);
         }
     }
 
-    getAllPossibleCases = () => {
+    getAllPossibleCases = (pionsArray) => {
         let finalCoords = [];
         let pos = this.state.pos;
-        let pionsArray = this.plateau.state.pions;
         switch (this.state.type) {
             case "pawn":
                 finalCoords = this.pawnMoves(pos,pionsArray);
@@ -220,6 +227,23 @@ export default class Pion extends Component {
     }
     kingMoves = (pionPos,pionsArray) => {
         let coords = [];
+        let rockCoords = [];
+        if (this.state.isFirstTour) {
+            if (this.checkRockLine([1,0],pionPos,pionsArray)) {
+                console.log("rigth");
+                if (this.checkLine({x:pionPos.x+2,y:pionPos.y},pionsArray)) {
+                    rockCoords.push([pionPos.x+2,pionPos.y,"rock"]);
+                }
+            }
+            if (this.checkRockLine([-1,0],pionPos,pionsArray)) {
+                console.log("lzft");
+                if (this.checkLine({x:pionPos.x-2,y:pionPos.y},pionsArray)) {
+                    rockCoords.push([pionPos.x-2,pionPos.y,"rock"]);
+                }
+            }
+        }
+
+        //console.log(rockCoords);
         return coords.concat(
             this.kingLine([1,1],pionPos,pionsArray),
             this.kingLine([-1,1],pionPos,pionsArray),
@@ -228,7 +252,8 @@ export default class Pion extends Component {
             this.kingLine([1,0],pionPos,pionsArray),
             this.kingLine([-1,0],pionPos,pionsArray),
             this.kingLine([0,1],pionPos,pionsArray),
-            this.kingLine([0,-1],pionPos,pionsArray)
+            this.kingLine([0,-1],pionPos,pionsArray),
+            rockCoords
         );
     }
     knightMoves = (pionPos,pionsArray) => {
@@ -270,6 +295,14 @@ export default class Pion extends Component {
         let linePos = [pionPos.x+(direction[0]),pionPos.y+(direction[1])];
         if (!this.inRange(linePos[0]) || !this.inRange(linePos[1])) return lineCoords;
         if (pionsArray[linePos[0]][linePos[1]] !== "empty") {
+            if (pionsArray[linePos[0]][linePos[1]].state.team === this.state.team) {
+                if (pionsArray[linePos[0]][linePos[1]].state.type == "king") {
+                    let test = this.checkLine({x: linePos[0], y: linePos[1]},pionsArray);
+                    if (test) {
+                        lineCoords.push(linePos);
+                    }
+                }
+            }
             if (pionsArray[linePos[0]][linePos[1]].state.team !== this.state.team) {
                 let test = this.checkLine({x: linePos[0], y: linePos[1]},pionsArray);
                 if (test) {
@@ -284,6 +317,23 @@ export default class Pion extends Component {
             lineCoords.push(linePos);
         }
         return lineCoords;
+    }
+
+    checkRockLine = (direction,pos,pionsArray) => {
+
+        for (let i = 1; i < 8; i++) {
+            let linePos = [pos.x+(direction[0]*i),pos.y+(direction[1]*i)];
+            if (!this.inRange(linePos[0]) || !this.inRange(linePos[1])) break;
+            let pion = pionsArray[linePos[0]][linePos[1]];
+            if (pion !== "empty") {
+                if (pion.state.team === this.state.team && pion.state.type === "rook") {
+                    return true;
+                } else {
+                    break;
+                }
+            }
+        }
+        return false;
     }
 
     checkLine = (pos,pionsArray) => {
