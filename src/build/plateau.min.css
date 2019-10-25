@@ -1,1 +1,1 @@
-#root{height:100%}#plateau{height:600px;width:600px;z-index:1;position:relative;display:grid}
+#root{height:100%}#plateau{height:80vw;width:80vw;max-height:700px;max-width:700px;z-index:1;position:relative;display:grid}

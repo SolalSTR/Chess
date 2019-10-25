@@ -1,1 +1,1 @@
-.pion{position:absolute;border-radius:50%;border:3px solid #fff;transition:1s;z-index:2;display:flex;justify-content:center;align-items:center;font-size:3em;color:#fff}.pion.dead{display:none}
+.pion{position:absolute;border-radius:50%;border:3px solid #fff;transition:1s;z-index:2;display:flex;justify-content:center;align-items:center;color:#fff}.pion i{font-size:2em}.pion.dead{display:none}
